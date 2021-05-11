@@ -1,7 +1,7 @@
 module Const
 
 # System Size
-const dim = 24
+const dim = 80
 
 # System Param
 const h = 1f0
@@ -17,6 +17,6 @@ const batchsize = 16
 
 # Hyper Param
 const θ₁ = 1f0
-const θ₂ = 5f0
+const θ₂ = 20f0
 
 end
