@@ -3,13 +3,11 @@ include("./setup.jl")
 include("./functions.jl")
 using .Const, .Func, Distributions, Base.Threads, Random
 
-const X = vcat(ones(Float32, Int(Const.dim / 2)), -ones(Float32, Int(Const.dim / 2)))
-
 function imaginary(dirname::String, filename1::String)
     # Initialize Traces
     traces = Vector{Func.GPcore.Trace}(undef, Const.batchsize)
     for n in 1:Const.batchsize
-        xs = shuffle(X)
+        xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
         mu = zeros(Float32, Const.init)
         K  = Func.GPcore.covar(xs)
         ys = rand(MvNormal(mu, K)) .+ im .* rand(MvNormal(mu, K))
