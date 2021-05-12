@@ -17,6 +17,6 @@ const batchsize = 16
 
 # Hyper Param
 const θ₁ = 1f0
-const θ₂ = 20f0
+const θ₂ = 40f0
 
 end

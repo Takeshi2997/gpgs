@@ -1,7 +1,7 @@
 module MCMC
 include("./setup.jl")
 include("./functions.jl")
-using .Const, .Func, Distributions, Base.Threads, Random
+using .Const, .Func, Distributions, Base.Threads, Serialization
 
 function imaginary(dirname::String, filename1::String)
     # Initialize Traces
@@ -40,6 +40,9 @@ function imaginary(dirname::String, filename1::String)
             traces[n] = Func.imaginary_evolution(traces[n])
         end
     end 
+
+    # Write Data
+    open(io -> serialize(io, traces), dirname * "gsdata.dat", "w")
 end
 
 function sampling(trace::Func.GPcore.Trace)
