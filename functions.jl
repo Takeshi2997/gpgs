@@ -63,9 +63,8 @@ function hamiltonian_ising(x::Vector{Float32}, y::Complex{Float32},
                            trace::GPcore.Trace, iy::Integer)
     out = 0f0im
     iynext = iy%Const.dim + 1
-    yflip1 = GPcore.model(trace, a.flip[iy] * x)
-    yflip2 = GPcore.model(trace, a.flip[iynext] * x)
-    out  += x[iy] * x[iynext] / 4f0 + Const.h * (yflip1 + yflip2) / y / 4f0
+    yflip = GPcore.model(trace, a.flip[iynext] * x)
+    out  += x[iy] * x[iynext] / 4f0 + Const.h * yflip / y / 2f0
     return -out
 end
 
