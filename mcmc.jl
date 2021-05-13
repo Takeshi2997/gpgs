@@ -42,7 +42,11 @@ function imaginary(dirname::String, filename1::String)
     end 
 
     # Write Data
-    open(io -> serialize(io, traces), dirname * "gsdata.dat", "w")
+    out = Vector(undef, Const.batchsize)
+    for n in 1:Const.batchsize
+        out[n] = (traces[n].xs, traces[n].ys)
+    end
+    open(io -> serialize(io, out), dirname * "/gsdata.dat", "w")
 end
 
 function sampling(trace::Func.GPcore.Trace)

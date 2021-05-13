@@ -19,6 +19,7 @@ function model(trace::Trace, x::Vector{Float32})
 end
 
 kernel(x::Vector{Float32}, y::Vector{Float32}) = Const.θ₁ * exp(-(norm(x - y))^2 / Const.θ₂)
+const I = Diagonal(ones(Float32, Const.init))
 
 function covar(xs::Vector{Vector{Float32}})
     n = length(xs)
@@ -30,7 +31,7 @@ function covar(xs::Vector{Vector{Float32}})
             K[i, j] = kernel(x, y)
         end
     end
-    return K
+    return K + Const.α * I
 end
 
 function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, x::Vector{Float32})
