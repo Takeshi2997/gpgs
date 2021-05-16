@@ -42,13 +42,13 @@ function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, x::
     imagy = imag.(ys)
     
     # Calculate inverse K
-    U, Δ, V = svd(K)
-    invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
-    invK = V * invΔ * U'
+#    U, Δ, V = svd(K)
+#    invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
+#    invK = V * invΔ * U'
  
-    realmu = kv' * invK * realy
-    imagmu = kv' * invK * imagy
-    var = abs(k0 - kv' * invK * kv)
+    realmu = kv' * K \ realy
+    imagmu = kv' * K \ imagy
+    var = abs(k0 - kv' * K \ kv)
     return  realmu, imagmu, var
 end
 
