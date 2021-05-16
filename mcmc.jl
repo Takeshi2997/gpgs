@@ -10,8 +10,12 @@ function imaginary(dirname::String, filename1::String)
         xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
         mu = zeros(Float32, Const.init)
         K  = Func.GPcore.covar(xs)
+#        U, Δ, V = svd(K)
+#        invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
+#        invK = V * invΔ * U'
+        invK = inv(K)
         ys = rand(MvNormal(mu, K)) .+ im .* rand(MvNormal(mu, K))
-        traces[n] = Func.GPcore.Trace(xs, ys)
+        traces[n] = Func.GPcore.Trace(xs, ys, invK)
     end
 
     # Imaginary roop
@@ -50,7 +54,6 @@ function imaginary(dirname::String, filename1::String)
 end
 
 function sampling(trace::Func.GPcore.Trace)
-    traceinit = trace
     energy = 0f0im
     magnet = 0f0
     # Metropolice sampling
@@ -60,7 +63,7 @@ function sampling(trace::Func.GPcore.Trace)
     for n in 1:length(xs)
         x = xs[n]
         y = ys[n]
-        e = Func.energy(x, y, traceinit)
+        e = Func.energy(x, y, trace)
         h = sum(@views x[1:Const.dim])
         energy += e
         magnet += h

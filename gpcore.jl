@@ -2,16 +2,17 @@ module GPcore
 include("./setup.jl")
 using .Const, Random, LinearAlgebra, Distributions, Base.Threads
 
-mutable struct Trace{T <: AbstractArray, S <: Complex}
+mutable struct Trace{T<:AbstractArray, S<:Complex, U<:Real}
     xs::Vector{T}
     ys::Vector{S}
+    invK::Array{U}
 end
 
 function model(trace::Trace, x::Vector{Float32})
-    xs, ys = trace.xs, trace.ys
+    xs, ys, invK = trace.xs, trace.ys, trace.invK
 
     # Compute mu var
-    realmu, imagmu, var = statcalc(xs, ys, x)
+    realmu, imagmu, var = statcalc(xs, ys, invK, x)
 
     # sample from gaussian
     y = rand(Normal(realmu, var)) + im * rand(Normal(imagmu, var))
@@ -34,18 +35,13 @@ function covar(xs::Vector{Vector{Float32}})
     return K + Const.α * I
 end
 
-function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, x::Vector{Float32})
-    K  = covar(xs)
+function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, invK::Array{Float32}, x::Vector{Float32})
     kv = [kernel(xs[i], x) for i in 1:length(xs)]
     k0 = kernel(x, x)
     realy = real.(ys)
     imagy = imag.(ys)
     
     # Calculate inverse K
-#    U, Δ, V = svd(K)
-#    invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
-#    invK = V * invΔ * U'
-    invK = inv(K)
     realmu = kv' * invK * realy
     imagmu = kv' * invK * imagy
     var = abs(k0 - kv' * invK * kv)
