@@ -10,10 +10,9 @@ function imaginary(dirname::String, filename1::String)
         xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
         mu = zeros(Float32, Const.init)
         K  = Func.GPcore.covar(xs)
-#        U, Δ, V = svd(K)
-#        invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
-#        invK = V * invΔ * U'
-        invK = inv(K)
+        U, Δ, V = svd(K)
+        invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
+        invK = V * invΔ * U'
         ys = rand(MvNormal(mu, K)) .+ im .* rand(MvNormal(mu, K))
         traces[n] = Func.GPcore.Trace(xs, ys, invK)
     end

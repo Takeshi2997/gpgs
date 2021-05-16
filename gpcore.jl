@@ -32,7 +32,7 @@ function covar(xs::Vector{Vector{Float32}})
             K[i, j] = kernel(x, y)
         end
     end
-    return K + Const.α * I
+    return K
 end
 
 function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, invK::Array{Float32}, x::Vector{Float32})
