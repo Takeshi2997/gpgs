@@ -1,7 +1,7 @@
 module MCMC
 include("./setup.jl")
 include("./functions.jl")
-using .Const, .Func, Distributions, Base.Threads, Serialization
+using .Const, .Func, Distributions, Base.Threads, Serialization, LinearAlgebra
 
 function imaginary(dirname::String, filename1::String)
     # Initialize Traces
