@@ -8,12 +8,16 @@ function imaginary(dirname::String, filename1::String)
     traces = Vector{Func.GPcore.Trace}(undef, Const.batchsize)
     for n in 1:Const.batchsize
         xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
-        mu = zeros(Float32, Const.init)
+        bimu = zeros(Float32, 2 * Const.init)
         K  = Func.GPcore.covar(xs)
+        biK1 = vcat(real.(K)/2f0,  imag.(K)/2f0)
+        biK2 = vcat(-imag.(K)/2f0, real.(K)/2f0)
+        biK  = hcat(biK1, biK2)
         U, Δ, V = svd(K)
         invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
         invK = V * invΔ * U'
-        ys = rand(MvNormal(mu, K)) .+ im .* rand(MvNormal(mu, K))
+        biys = rand(MvNormal(bimu, biK))
+        ys = biys[1:Const.init] .+ im * biys[Const.init+1:end]
         traces[n] = Func.GPcore.Trace(xs, ys, invK)
     end
 
