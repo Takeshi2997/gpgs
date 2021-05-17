@@ -19,9 +19,28 @@ function model(trace::Trace, x::Vector{Float32})
     return y
 end
 
+function shiftmatrix()
+    I = Array(Diagonal(ones(Float32, Const.dim)))
+    A = Vector{Array{Float32}}(undef, Const.dim)
+    for i in 1:Const.dim
+        A[i] = circshift(I, i-1)
+    end
+    return A
+end
+
+const A = shiftmatrix()
+
+function distance(x::Vector{Float32}, y::Vector{Float32})
+    r = zeros(Float32, Const.dim)
+    for i in 1:Const.dim
+        r[i] = norm(A[i] * x - y)
+    end
+    return minimum(r) / 2f0 / Const.dim
+end
+
 function kernel(x::Vector{Float32}, y::Vector{Float32})
-    r = (x - y) / 2f0 / Const.dim
-    Const.θ₁ * exp(-norm(r)^2 / Const.θ₂)
+    r = distance(x, y)
+    Const.θ₁ * exp(-2f0 * π * r^2 / Const.θ₂)
 end
 
 function covar(xs::Vector{Vector{Float32}})

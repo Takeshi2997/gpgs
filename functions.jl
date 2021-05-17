@@ -84,7 +84,7 @@ function energy(x::Vector{Float32}, y::Complex{Float32}, trace::GPcore.Trace)
 end
 
 function imaginary_evolution(trace::GPcore.Trace)
-    xs, ys = trace.xs, trace.ys
+    xs, ys, invK = trace.xs, trace.ys, trace.invK
     xs′ = copy(xs)
     ys′ = copy(ys)
     for n in 1:Const.init
@@ -93,10 +93,6 @@ function imaginary_evolution(trace::GPcore.Trace)
         e = energy(x, y, trace)
         ys′[n] = (1f0 - Const.Δτ .* e / Const.dim) * y
     end 
-    K  = GPcore.covar(xs′)
-    U, Δ, V = svd(K)
-    invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
-    invK = V * invΔ * U'
     outtrace = GPcore.Trace(xs′, ys′, invK)
     return outtrace
 end
