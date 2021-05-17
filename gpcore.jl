@@ -19,7 +19,10 @@ function model(trace::Trace, x::Vector{Float32})
     return y
 end
 
-kernel(x::Vector{Float32}, y::Vector{Float32}) = Const.θ₁ * exp(-(norm(x - y))^2 / Const.θ₂)
+function kernel(x::Vector{Float32}, y::Vector{Float32})
+    r = (x - y) / 2f0 / Const.dim
+    Const.θ₁ * exp(-r^2 / Const.θ₂)
+end
 
 function covar(xs::Vector{Vector{Float32}})
     n = length(xs)
