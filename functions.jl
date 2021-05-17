@@ -28,7 +28,7 @@ function update(trace::GPcore.Trace)
         xflip = copy(x)
         xflip[ix] *= -1f0
         yflip = GPcore.model(trace, xflip)
-        prob  = abs2(yflip / y)
+        prob  = exp(2f0 * real(yflip - y))
         a = x[ix]
         if randomnum[ix] < prob
             x = xflip
@@ -44,7 +44,7 @@ function hamiltonian_heisenberg(x::Vector{Float32}, y::Complex{Float32},
     ixnext = ix%Const.dim + 1
     if x[ix] != x[ixnext]
         yflip = GPcore.model(trace, a.flip[ixnext] * a.flip[ix] * x)
-        out  += 2f0 * yflip / y - 1f0
+        out  += 2f0 * exp(yflip - y) - 1f0
     else
         out += 1f0
     end
@@ -64,7 +64,7 @@ function hamiltonian_ising(x::Vector{Float32}, y::Complex{Float32},
     out = 0f0im
     iynext = iy%Const.dim + 1
     yflip = GPcore.model(trace, a.flip[iynext] * x)
-    out  += x[iy] * x[iynext] / 4f0 + Const.h * yflip / y / 2f0
+    out  += x[iy] * x[iynext] / 4f0 + Const.h * exp(yflip - y) / 2f0
     return -out
 end
 
@@ -85,14 +85,15 @@ end
 
 function imaginary_evolution(trace::GPcore.Trace)
     xs, ys, invK = trace.xs, trace.ys, trace.invK
+    ψ   = zeros(Complex{Float32}, length(ys))
     xs′ = copy(xs)
-    ys′ = copy(ys)
     for n in 1:Const.init
         x = xs[n]
         y = ys[n]
         e = energy(x, y, trace)
-        ys′[n] = (1f0 - Const.Δτ .* e / Const.dim) * y
+        ψ[n] = (1f0 - Const.Δτ .* e / Const.dim) * exp(y)
     end 
+    ys′ = log.(ψ)
     outtrace = GPcore.Trace(xs′, ys′, invK)
     return outtrace
 end
