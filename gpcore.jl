@@ -19,16 +19,8 @@ function model(trace::Trace, x::Vector{Float32})
     return y
 end
 
-function distance(x::Vector{Float32}, y::Vector{Float32})
-    r = zeros(Float32, Const.dim)
-    for i in 1:Const.dim
-        r[i] = norm(circshift(x, i-1) - y)
-    end
-    return minimum(r) / 2f0 / Const.dim
-end
-
 function kernel(x::Vector{Float32}, y::Vector{Float32})
-    r = distance(x, y)
+    r = norm(x - y) / 2f0 / Const.dim
     Const.θ₁ * exp(-2f0 * π * r^2 / Const.θ₂)
 end
 
