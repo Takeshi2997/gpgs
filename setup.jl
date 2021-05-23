@@ -11,8 +11,8 @@ const Δτ = 0.1f0
 # Repeat Number
 const init  = 32
 const burnintime = 10
-const iters = 100
-const iT    = 320
+const iters = 320
+const iT    = 200
 const batchsize = 16
 
 # Hyper Param

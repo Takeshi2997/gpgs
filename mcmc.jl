@@ -30,7 +30,7 @@ function imaginary(dirname::String, filename1::String)
         @threads for n in 1:Const.batchsize
             e[n], h[n] = sampling(traces[n])
         end
-        energy = real(sum(e))  / Const.iters / Const.batchsize
+        energy = real(sum(e)) / Const.iters / Const.batchsize
         magnet = sum(h) / Const.iters / Const.batchsize
 
         # Write Data
@@ -76,10 +76,23 @@ function sampling(trace::Func.GPcore.Trace)
 end
 
 function mh(trace::Func.GPcore.Trace)
-    initxs = Vector{Vector{Float32}}(undef, Const.iters)
-    initys = Vector{Complex{Float32}}(undef, Const.iters)
+    initxs = Vector{Vector{Float32}}(undef, Const.init)
+    initys = Vector{Complex{Float32}}(undef, Const.init)
     outxs  = Vector{Vector{Float32}}(undef, Const.iters)
     outys  = Vector{Complex{Float32}}(undef, Const.iters)
+    for i in 1:Const.burnintime
+        x, y = Func.update(trace)
+    end
+    for i in 1:Const.init
+        x, y = Func.update(trace)
+        initxs[i] = x
+        initys[i] = y
+    end
+    K  = Func.GPcore.covar(initxs)
+    U, Δ, V = svd(K)
+    invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
+    invK = V * invΔ * U'
+    trace = Func.GPcore.Trace(initxs, initys, invK)
     for i in 1:Const.burnintime
         x, y = Func.update(trace)
     end
@@ -87,15 +100,6 @@ function mh(trace::Func.GPcore.Trace)
         x, y = Func.update(trace)
         outxs[i] = x
         outys[i] = y
-        if i%Const.init == 0
-            xs = outxs[i-Const.init+1:i]
-            ys = outys[i-Const.init+1:i]
-            K  = Func.GPcore.covar(xs)
-            U, Δ, V = svd(K)
-            invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
-            invK = V * invΔ * U'
-            trace = Func.GPcore.Trace(xs, ys, invK)
-        end
     end
     return outxs, outys
 end
