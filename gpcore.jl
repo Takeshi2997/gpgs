@@ -42,8 +42,8 @@ function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}},
     kv = [kernel(xs[i], x) for i in 1:length(xs)]
     k0 = kernel(x, x)
 
-    mu = kv' * invK * exp.(ys)
-    var = abs(k0 - kv' * invK * kv)
+    mu = transpose(kv) * invK * exp.(ys)
+    var = abs(k0 - transpose(kv) * invK * kv)
     return  mu, var
 end
 

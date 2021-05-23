@@ -9,7 +9,7 @@ function imaginary(dirname::String, filename1::String)
     for n in 1:Const.batchsize
         xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
         mu = zeros(Float32, 2 * Const.init)
-        I  = Array(Diagonal(zeros(Float32, 2 * Const.init)))
+        I  = Array(Diagonal(ones(Float32, 2 * Const.init)))
         K  = Func.GPcore.covar(xs)
         invK = inv(K)
         biys = rand(MvNormal(mu, I))
