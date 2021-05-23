@@ -24,6 +24,8 @@ function kernel(x::Vector{Float32}, y::Vector{Float32})
     Const.θ₁ * exp(-2f0 * π * r^2 / Const.θ₂)
 end
 
+const I = Diagonal(ones(Float32, Const.init))
+
 function covar(xs::Vector{Vector{Float32}})
     n = length(xs)
     K = zeros(Complex{Float32}, n, n)
@@ -34,7 +36,7 @@ function covar(xs::Vector{Vector{Float32}})
             K[i, j] = kernel(x, y)
         end
     end
-    return K
+    return K + 1f-6 * I
 end
 
 function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, 
