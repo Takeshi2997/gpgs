@@ -38,27 +38,6 @@ function update(trace::GPcore.Trace)
     return x, y
 end
 
-function update(trace::GPcore.Trace)
-    xs, ys = trace.xs, trace.ys
-    x = xs[end]
-    y = ys[end]
-    n = length(x)
-    rng = MersenneTwister(1234)
-    randomnum = rand(rng, Float32, n)
-    for ix in 1:n
-        xflip = copy(x)
-        xflip[ix] *= -1f0
-        yflip = GPcore.model(trace, xflip)
-        prob  = exp(2f0 * real(yflip - y))
-        a = x[ix]
-        if randomnum[ix] < prob
-            x = xflip
-            y = yflip
-        end
-    end
-    return x, y
-end
-
 function hamiltonian_heisenberg(x::Vector{Float32}, y::Complex{Float32}, ix::Integer)
     out = 0f0im
     ixnext = ix%Const.dim + 1
