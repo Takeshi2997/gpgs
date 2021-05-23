@@ -15,7 +15,7 @@ function model(trace::Trace, x::Vector{Float32})
     mu, var = statcalc(xs, ys, invK, x)
 
     # sample from gaussian
-    y = var * randn(Complex{Float32}) + mu
+    y = log.(var * randn(Complex{Float32}) + mu)
     return y
 end
 
@@ -42,7 +42,7 @@ function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}},
     kv = [kernel(xs[i], x) for i in 1:length(xs)]
     k0 = kernel(x, x)
 
-    mu = kv' * invK * ys
+    mu = kv' * invK * exp.(ys)
     var = abs(k0 - kv' * invK * kv)
     return  mu, var
 end

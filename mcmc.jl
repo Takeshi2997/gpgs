@@ -17,8 +17,8 @@ function imaginary(dirname::String, filename1::String)
         invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
         invK = V * invΔ * U'
         biys = rand(MvNormal(bimu, biK))
-        ys = biys[1:Const.init] .+ im * biys[Const.init+1:end]
-        ys ./= norm(ys)
+        ψ = biys[1:Const.init] .+ im * biys[Const.init+1:end]
+        ys  = log.(ψ)
         traces[n] = Func.GPcore.Trace(xs, ys, invK)
     end
 

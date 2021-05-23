@@ -9,7 +9,7 @@ const J = -1f0
 const Δτ = 0.1f0
 
 # Repeat Number
-const init  = 24
+const init  = 32
 const burnintime = 10
 const iters = 100
 const iT    = 200
