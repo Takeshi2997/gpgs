@@ -28,6 +28,7 @@ function imaginary(dirname::String, filename1::String)
         e = zeros(Complex{Float32}, Const.batchsize)
         h = zeros(Float32, Const.batchsize)
         @threads for n in 1:Const.batchsize
+            traceupdate(traces[n])
             e[n], h[n] = sampling(traces[n])
         end
         energy = real(sum(e)) / Const.iters / Const.batchsize
@@ -75,11 +76,9 @@ function sampling(trace::Func.GPcore.Trace)
     return energy, magnet
 end
 
-function mh(trace::Func.GPcore.Trace)
+function traceupdate(trace::Func.GPcore.Trace)
     initxs = Vector{Vector{Float32}}(undef, Const.init)
     initys = Vector{Complex{Float32}}(undef, Const.init)
-    outxs  = Vector{Vector{Float32}}(undef, Const.iters)
-    outys  = Vector{Complex{Float32}}(undef, Const.iters)
     for i in 1:Const.burnintime
         x, y = Func.update(trace)
     end
@@ -93,6 +92,11 @@ function mh(trace::Func.GPcore.Trace)
     invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
     invK = V * invΔ * U'
     trace = Func.GPcore.Trace(initxs, initys, invK)
+end
+
+function mh(trace::Func.GPcore.Trace)
+    outxs  = Vector{Vector{Float32}}(undef, Const.iters)
+    outys  = Vector{Complex{Float32}}(undef, Const.iters)
     for i in 1:Const.burnintime
         x, y = Func.update(trace)
     end
