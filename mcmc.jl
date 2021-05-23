@@ -76,15 +76,26 @@ function sampling(trace::Func.GPcore.Trace)
 end
 
 function mh(trace::Func.GPcore.Trace)
-    outxs = Vector{Vector{Float32}}(undef, Const.iters)
-    outys = Vector{Complex{Float32}}(undef, Const.iters)
+    initxs = Vector{Vector{Float32}}(undef, Const.iters)
+    initys = Vector{Complex{Float32}}(undef, Const.iters)
+    outxs  = Vector{Vector{Float32}}(undef, Const.iters)
+    outys  = Vector{Complex{Float32}}(undef, Const.iters)
     for i in 1:Const.burnintime
-        xs, ys = Func.update(trace)
+        Func.initupdate(trace)
     end
     for i in 1:Const.iters
-        xs, ys = Func.update(trace)
-        outxs[i] = xs
-        outys[i] = ys
+        x, y = Func.update(trace)
+        outxs[i] = x
+        outys[i] = y
+        if i%Const.init == 0
+            xs = outxs[i-Const.init+1:i]
+            ys = outys[i-Const.init+1:i]
+            K  = Func.GPcore.covar(xs)
+            U, Δ, V = svd(K)
+            invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
+            invK = V * invΔ * U'
+            trace = Func.GPcore.Trace(xs, ys, invK)
+        end
     end
     return outxs, outys
 end

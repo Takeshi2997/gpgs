@@ -12,7 +12,7 @@ const Δτ = 0.1f0
 const init  = 32
 const burnintime = 10
 const iters = 100
-const iT    = 200
+const iT    = 320
 const batchsize = 16
 
 # Hyper Param
