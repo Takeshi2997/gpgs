@@ -28,7 +28,10 @@ function imaginary(dirname::String, filename1::String)
         e = zeros(Complex{Float32}, Const.batchsize)
         h = zeros(Float32, Const.batchsize)
         @threads for n in 1:Const.batchsize
-            traceupdate(traces[n])
+            println(traces[n].ys[1])
+            traces[n] = traceupdate(traces[n])
+            println(traces[n].ys[1])
+            exit()
             e[n], h[n] = sampling(traces[n])
         end
         energy = real(sum(e)) / Const.iters / Const.batchsize
@@ -91,7 +94,7 @@ function traceupdate(trace::Func.GPcore.Trace)
     U, Δ, V = svd(K)
     invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
     invK = V * invΔ * U'
-    trace = Func.GPcore.Trace(initxs, initys, invK)
+    return Func.GPcore.Trace(initxs, initys, invK)
 end
 
 function mh(trace::Func.GPcore.Trace)
