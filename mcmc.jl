@@ -7,18 +7,11 @@ function imaginary(dirname::String, filename1::String)
     # Initialize Traces
     traces = Vector{Func.GPcore.Trace}(undef, Const.batchsize)
     for n in 1:Const.batchsize
-        xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
         bimu = zeros(Float32, 2 * Const.init)
-        K  = Func.GPcore.covar(xs)
-        biK1 = vcat(real.(K)/2f0,  imag.(K)/2f0)
-        biK2 = vcat(-imag.(K)/2f0, real.(K)/2f0)
-        biK  = hcat(biK1, biK2)
-        U, Δ, V = svd(K)
-        invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
-        invK = V * invΔ * U'
-        biys = rand(MvNormal(bimu, biK))
-        ys = biys[1:Const.init] .+ im * biys[Const.init+1:end]
-        traces[n] = Func.GPcore.Trace(xs, ys, invK)
+        biI  = Array(Diagonal(ones(Float32, 2 * Const.init)))
+        biys = rand(MvNormal(bimu, biI))
+        ys = log.(biys[1:Const.init] .+ im * biys[Const.init+1:end])
+        traces[n] = Func.GPcore.makedata(ys)
     end
 
     # Imaginary roop
@@ -29,7 +22,7 @@ function imaginary(dirname::String, filename1::String)
         @threads for n in 1:Const.batchsize
             e[n], h[n] = sampling(traces[n])
         end
-        energy = real(sum(e))  / Const.iters / Const.batchsize
+        energy = real(sum(e)) / Const.iters / Const.batchsize
         magnet = sum(h) / Const.iters / Const.batchsize
 
         # Write Data
@@ -78,12 +71,12 @@ function mh(trace::Func.GPcore.Trace)
     outxs = Vector{Vector{Float32}}(undef, Const.iters)
     outys = Vector{Complex{Float32}}(undef, Const.iters)
     for i in 1:Const.burnintime
-        xs, ys = Func.update(trace)
+        x, y = Func.update(trace)
     end
     for i in 1:Const.iters
-        xs, ys = Func.update(trace)
-        outxs[i] = xs
-        outys[i] = ys
+        x, y = Func.update(trace)
+        outxs[i] = x
+        outys[i] = y
     end
     return outxs, outys
 end

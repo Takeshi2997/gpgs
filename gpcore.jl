@@ -5,18 +5,44 @@ using .Const, Random, LinearAlgebra, Distributions, Base.Threads
 mutable struct Trace{T<:AbstractArray, S<:Complex}
     xs::Vector{T}
     ys::Vector{S}
-    invK::Array{S}
+    iKu::Vector{S}
+    iΣ::Array{S}
+end
+
+function makedata(ys::Vector{Complex{Float32}})
+    # Step 1
+    xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
+    zs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.auxn]
+    KMM = covar(zs)
+    KMN = [kernel(zs[i], xs[j]) for i in 1:length(zs), j in 1:length(xs)]
+
+    # Step 2
+    Λ = Diagonal([kernel(xs[i], xs[i]) + KMN[:, i]' * (KMM \ KMN[:, i]) for i in 1:length(xs)])
+    I = Diagonal(ones(Float32, Const.init))
+    Λ += 1f-6 * I
+
+    # Step3
+    QMM = KMM + KMN * (Λ \ KMN')
+    û = KMM * (QMM \ (KMN * (Λ \ exp.(ys))))
+    Σ̂ = KMM * (QMM \ KMM)
+    iKu = KMM \ û
+    iΣ  = inv(Σ̂)
+
+    # Output
+    Trace(xs, ys, iKu, iΣ)
 end
 
 function model(trace::Trace, x::Vector{Float32})
-    xs, ys, invK = trace.xs, trace.ys, trace.invK
+    xs, ys, iKu, iΣ = trace.xs, trace.ys, trace.iKu, trace.iΣ
 
     # Compute mu var
-    mu, var = statcalc(xs, ys, invK, x)
+    kv = [kernel(xs[i], x) for i in 1:Const.auxn]
+    k0 = kernel(x, x)
+    mu = kv' * iKu
+    var = k0 - kv' * iΣ * kv
 
     # sample from gaussian
-    y = var * randn(Complex{Float32}) + mu
-    return y
+    log.(var * randn(Complex{Float32}) + mu)
 end
 
 function kernel(x::Vector{Float32}, y::Vector{Float32})
@@ -27,6 +53,7 @@ end
 function covar(xs::Vector{Vector{Float32}})
     n = length(xs)
     K = zeros(Complex{Float32}, n, n)
+    I = Diagonal(ones(Float32, n))
     for j in 1:n
         y = xs[j]
         for i in 1:n
@@ -34,17 +61,6 @@ function covar(xs::Vector{Vector{Float32}})
             K[i, j] = kernel(x, y)
         end
     end
-    return K
+    return K + 1f-6 * I
 end
-
-function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, 
-                  invK::Array{Complex{Float32}}, x::Vector{Float32})
-    kv = [kernel(xs[i], x) for i in 1:length(xs)]
-    k0 = kernel(x, x)
-
-    mu = kv' * invK * ys
-    var = abs(k0 - kv' * invK * kv)
-    return  mu, var
-end
-
 end
