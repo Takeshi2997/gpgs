@@ -12,11 +12,13 @@ function model(trace::Trace, x::Vector{Float32})
     xs, ys, invK = trace.xs, trace.ys, trace.invK
 
     # Compute mu var
-    mu, var = statcalc(xs, ys, invK, x)
+    kv = [kernel(xs[i], x) for i in 1:length(xs)]
+    k0 = kernel(x, x)
+    mu = transpose(kv) * invK * exp.(ys)
+    var = abs(k0 - transpose(kv) * invK * kv)
 
     # sample from gaussian
-    y = log.(var * randn(Complex{Float32}) + mu)
-    return y
+    log.(var * randn(Complex{Float32}) + mu)
 end
 
 function kernel(x::Vector{Float32}, y::Vector{Float32})
@@ -38,15 +40,4 @@ function covar(xs::Vector{Vector{Float32}})
     end
     return K + 1f-6 * I
 end
-
-function statcalc(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}}, 
-                  invK::Array{Complex{Float32}}, x::Vector{Float32})
-    kv = [kernel(xs[i], x) for i in 1:length(xs)]
-    k0 = kernel(x, x)
-
-    mu = transpose(kv) * invK * exp.(ys)
-    var = abs(k0 - transpose(kv) * invK * kv)
-    return  mu, var
-end
-
 end
