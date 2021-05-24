@@ -105,28 +105,15 @@ function energy(x::Vector{Float32}, y::Complex{Float32}, trace::GPcore.Trace)
 end
 
 function imaginary_evolution(trace::GPcore.Trace)
-<<<<<<< HEAD
     xs, ys = trace.xs, trace.ys
-=======
-    xs, ys, invK = trace.xs, trace.ys, trace.invK
-    ψ   = zeros(Complex{Float32}, length(ys))
->>>>>>> b08e34305e27c4492e646c8ccbbe52ef96eb0669
     xs′ = copy(xs)
     for n in 1:Const.init
         x = xs[n]
         y = ys[n]
         e = energy(x, y, trace)
-<<<<<<< HEAD
         ys′[n] = log((1f0 - Const.Δτ .* e / Const.dim) * exp(y))
     end 
     GPcore.makedata(ys′)
-=======
-        ψ[n] = (1f0 - Const.Δτ .* e / Const.dim) * exp(y)
-    end 
-    ys′ = log.(ψ)
-    outtrace = GPcore.Trace(xs′, ys′, invK)
-    return outtrace
->>>>>>> b08e34305e27c4492e646c8ccbbe52ef96eb0669
 end
 
 end
