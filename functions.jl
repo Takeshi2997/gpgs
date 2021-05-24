@@ -107,6 +107,7 @@ end
 function imaginary_evolution(trace::GPcore.Trace)
     xs, ys = trace.xs, trace.ys
     xs′ = copy(xs)
+    ys′ = copy(ys)
     for n in 1:Const.init
         x = xs[n]
         y = ys[n]
