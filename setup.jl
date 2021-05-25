@@ -12,7 +12,7 @@ const Δτ = 0.1f0
 const init = 1024
 const auxn = 32
 const burnintime = 10
-const iters = 100
+const iters = 1000
 const iT    = 500
 const batchsize = 16
 
