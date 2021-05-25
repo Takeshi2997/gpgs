@@ -9,15 +9,15 @@ const J = -1f0
 const Δτ = 0.1f0
 
 # Repeat Number
-const init = 128
+const init = 1024
 const auxn = 32
 const burnintime = 10
 const iters = 100
-const iT    = 200
+const iT    = 500
 const batchsize = 16
 
 # Hyper Param
 const θ₁ = 1f0
-const θ₂ = 0.01f0
+const θ₂ = 0.1f0
 
 end

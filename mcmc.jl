@@ -7,11 +7,12 @@ function imaginary(dirname::String, filename1::String)
     # Initialize Traces
     traces = Vector{Func.GPcore.Trace}(undef, Const.batchsize)
     for n in 1:Const.batchsize
+        xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
         bimu = zeros(Float32, 2 * Const.init)
         biI  = Array(Diagonal(ones(Float32, 2 * Const.init)))
         biys = rand(MvNormal(bimu, biI))
         ys = log.(biys[1:Const.init] .+ im * biys[Const.init+1:end])
-        traces[n] = Func.GPcore.makedata(ys)
+        traces[n] = Func.GPcore.makedata(xs, ys)
     end
 
     # Imaginary roop

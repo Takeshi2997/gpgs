@@ -9,17 +9,14 @@ mutable struct Trace{T<:AbstractArray, S<:Complex}
     iΣ::Array{S}
 end
 
-function makedata(ys::Vector{Complex{Float32}})
+function makedata(xs::Vector{Vector{Float32}}, ys::Vector{Complex{Float32}})
     # Step 1
-    xs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.init]
     zs = [rand([1f0, -1f0], Const.dim) for i in 1:Const.auxn]
     KMM = covar(zs)
     KMN = [kernel(zs[i], xs[j]) for i in 1:length(zs), j in 1:length(xs)]
 
     # Step 2
-    Λ = Diagonal([kernel(xs[i], xs[i]) + KMN[:, i]' * (KMM \ KMN[:, i]) for i in 1:length(xs)])
-    I = Diagonal(ones(Float32, Const.init))
-    Λ += 1f-6 * I
+    Λ = Diagonal([kernel(xs[i], xs[i]) + KMN[:, i]' * (KMM \ KMN[:, i]) + 1f-6 for i in 1:length(xs)])
 
     # Step3
     QMM = KMM + KMN * (Λ \ KMN')
