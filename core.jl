@@ -36,9 +36,8 @@ function measure()
 
         # numialize Physical Value
         energy  = 0f0im
-        venergy = 0f0im
         magnet  = 0f0
-        energy, venergy, magnet = sampling(model)
+        energy, magnet = sampling(model)
 
         # Write Data
         open("./data/" * filename, "a") do io
@@ -54,7 +53,6 @@ end
 
 function sampling(model::GPmodel)
     E  = 0f0im
-    vE = 0f0im
     magnet = 0f0
     # Metropolice sampling
     xs, ys = mh(model)
@@ -66,10 +64,9 @@ function sampling(model::GPmodel)
         e = energy(x, y, model) / c.N
         h = sum(@views x[1:c.N]) / c.N
         E  += e
-        vE += (c.l - e) * conj(c.l - e)
         magnet  += h
     end
-    real(E) / c.iters, real(vE) / c.iters, magnet / c.iters
+    real(E) / c.iters, magnet / c.iters
 end
 
 function mh(model::GPmodel)
