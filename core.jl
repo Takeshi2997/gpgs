@@ -16,7 +16,7 @@ function it_evolution(model::GPmodel)
             x = xs[i]
             y = ys[i]
             e = energy(x, y, model)
-            ys′[i] = log((1f0 - Δτ * e / c.N) * exp(y))
+            ys′[i] = log((1f0 - c.Δτ * e / c.N) * exp(y))
         end
         model = makemodel(xs, ys′)
         xs = [rand([1f0, -1f0], c.N) for i in 1:c.num]
