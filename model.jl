@@ -43,7 +43,7 @@ end
 
 function distance(x::Vector{T}, y::Vector{T}) where {T<:Real}
     r = 0f0
-    @inbounds for i in 1:c.N
+    @simd for i in 1:c.N
         r += norm(circshift(x, i-1) - y) / 2f0 / c.N
     end
     r / c.N

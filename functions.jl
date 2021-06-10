@@ -23,7 +23,7 @@ function update(model::GPmodel)
     n = length(x)
     rng = MersenneTwister(1234)
     randomnum = rand(rng, Float32, n)
-    for ix in 1:n
+    @inbounds for ix in 1:n
         xflip = a.flip[ix] * x
         yflip = inference(model, xflip)
         prob  = exp(2f0 * real(yflip - y))
@@ -97,17 +97,5 @@ function energy(x::Vector{Float32}, y::Complex{Float32}, model::GPmodel)
 #    e = energy_heisenberg(x, y, model)
     e = energy_XY(x, y, model)
     return e
-end
-
-function imaginary_evolution(model::GPmodel)
-    xs, ys = model.xs, model.ys
-    ys′ = copy(ys)
-    for n in 1:c.num
-        x = xs[n]
-        y = ys[n]
-        e = energy(x, y, model)
-        ys′[n] = log((c.l - e / c.N) * exp(y))
-    end 
-    GPcore.makedata(xs, ys′)
 end
 

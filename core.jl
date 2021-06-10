@@ -73,7 +73,7 @@ function mh(model::GPmodel)
     for i in 1:c.burnintime
         x, y = update(model)
     end
-    for i in 1:c.iters
+    @inbounds for i in 1:c.iters
         x, y = update(model)
         outxs[i] = x
         outys[i] = y
