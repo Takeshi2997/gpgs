@@ -9,19 +9,17 @@ const filename  = "physicalvalue.txt"
 function it_evolution(model::GPmodel)
     for it in 1:c.iT
         # Model Update!
-        xydata = open(deserialize, "./data/" * filenames[it])
-        xs, ys = model.xs, model.ys
+        xs′ = [rand([1f0, -1f0], c.N) for i in 1:c.num]
+        ys  = [inference(model, x) for x in xs′]
         ys′ = copy(ys)
         @simd for i in 1:c.num
-            x = xs[i]
+            x = xs′[i]
             y = ys[i]
             e = energy(x, y, model)
             ys′[i] = log((1f0 - c.Δτ * e / c.N) * exp(y))
         end
-        model = makemodel(xs, ys′)
-        xs = [rand([1f0, -1f0], c.N) for i in 1:c.num]
-        ys = [inference(model, x) for x in xs]
-        outdata = (xs, ys)
+        model = makemodel(xs′, ys′)
+        outdata = (xs′, ys′)
         open(io -> serialize(io, outdata), "./data/" * filenames[it+1], "w")
     end
 end

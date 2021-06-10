@@ -25,11 +25,11 @@ function GP_Data()
     h = 1f0
     J = 1f0
     t = 1f0
-    Δτ = 0.6f0
-    num = 4096
+    Δτ = 0.1f0
+    num = 1024
     auxn = 64
     burnintime = 10
-    iters = 5000
+    iters = 10000
     iT    = 100
     θ₁ = 1f0
     θ₂ = 0.01f0
