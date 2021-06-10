@@ -41,15 +41,36 @@ function inference(model::GPmodel, x::Vector{T}) where {T<:Real}
     log.(sqrt(var) * randn(Complex{T}) + mu)
 end
 
+const I = Array(Diagonal(ones(Float32, c.num)))
+
+struct CircshiftArrays{T<:AbstractArray}
+    cshift::Vector{T}
+end
+function CircshiftArrays()
+    cshift = Vector{Array{Float32}}(undef, c.N)
+    for i in 1:c.N
+        o = Array(Diagonal(ones(Float32, c.N)))
+        cshift[i] = circshift(o, i-1)
+    end
+    CircshiftArrays(cshift)
+end
+const b = CircshiftArrays()
+
+function distance(x::Vector{T}, y::Vector{T}) where {T<:Real}
+    A = sum(y .* b.cshift)
+    B = sum(x .* b.cshift)
+    1f0 - maximum(A' * x + B' * y) / 2f0 / c.N
+end
+
 function kernel(x::Vector{T}, y::Vector{T}) where {T<:Real}
-    r = norm(x - y) / 2f0 / c.N
+    r = distance(x, y)
     c.θ₁ * exp(-r^2 / c.θ₂)
 end
 
 function covar(xs::Vector{Vector{T}}) where {T<:Real}
     n = length(xs)
     K = zeros(Complex{Float32}, n, n)
-    I = Diagonal(ones(Float32, n))
+    I0 = Diagonal(ones(Float32, n))
     for j in 1:n
         y = xs[j]
         for i in 1:n
@@ -57,5 +78,5 @@ function covar(xs::Vector{Vector{T}}) where {T<:Real}
             K[i, j] = kernel(x, y)
         end
     end
-    return K + 1f-6 * I
+    return K + 1f-6 * I0
 end
