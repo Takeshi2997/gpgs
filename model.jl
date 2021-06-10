@@ -41,25 +41,12 @@ function inference(model::GPmodel, x::Vector{T}) where {T<:Real}
     log.(sqrt(var) * randn(Complex{T}) + mu)
 end
 
-const I = Array(Diagonal(ones(Float32, c.num)))
-
-struct CircshiftArrays{T<:AbstractArray}
-    cshift::Vector{T}
-end
-function CircshiftArrays()
-    cshift = Vector{Array{Float32}}(undef, c.N)
-    for i in 1:c.N
-        o = Array(Diagonal(ones(Float32, c.N)))
-        cshift[i] = circshift(o, i-1)
-    end
-    CircshiftArrays(cshift)
-end
-const b = CircshiftArrays()
-
 function distance(x::Vector{T}, y::Vector{T}) where {T<:Real}
-    A = sum(y .* b.cshift)
-    B = sum(x .* b.cshift)
-    1f0 - maximum(A' * x + B' * y) / 2f0 / c.N
+    r = 0f0
+    @inbounds for i in 1:c.N
+        r += norm(circshift(x, i-1) - y) / 2f0 / c.N
+    end
+    r / c.N
 end
 
 function kernel(x::Vector{T}, y::Vector{T}) where {T<:Real}

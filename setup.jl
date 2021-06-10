@@ -29,7 +29,7 @@ function GP_Data()
     num = 1024
     auxn = 64
     burnintime = 10
-    iters = 10000
+    iters = 1000
     iT    = 100
     θ₁ = 1f0
     θ₂ = 0.01f0
