@@ -70,11 +70,13 @@ end
 function mh(model::GPmodel)
     outxs = Vector{Vector{Float32}}(undef, c.iters)
     outys = Vector{Complex{Float32}}(undef, c.iters)
+    x = rand([1f0, -1f0], c.N)
+    y = inference(model, x)
     for i in 1:c.burnintime
-        x, y = update(model)
+        update(model, x, y)
     end
     @inbounds for i in 1:c.iters
-        x, y = update(model)
+        update(model, x, y)
         outxs[i] = x
         outys[i] = y
     end

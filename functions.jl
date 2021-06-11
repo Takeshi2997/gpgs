@@ -16,10 +16,7 @@ function Flip()
 end
 const a = Flip()
 
-function update(model::GPmodel)
-    xs, ys = model.xs, model.ys
-    x = xs[end]
-    y = ys[end]
+function update(model::GPmodel, x::Vector{Float32}, y::Complex{Float32})
     n = length(x)
     rng = MersenneTwister(1234)
     randomnum = rand(rng, Float32, n)
@@ -32,7 +29,6 @@ function update(model::GPmodel)
             y = yflip
         end
     end
-    return x, y
 end
 
 function hamiltonian_heisenberg(x::Vector{Float32}, y::Complex{Float32}, 
