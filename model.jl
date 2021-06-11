@@ -47,7 +47,7 @@ function distance(x::Vector{T}, y::Vector{T}) where {T<:Real}
 end
 
 function kernel(x::Vector{T}, y::Vector{T}) where {T<:Real}
-    r = distance(x, y)
+    r = norm(x - y) / 2f0 / c.N
     c.θ₁ * exp(-r^2 / c.θ₂)
 end
 

@@ -73,10 +73,10 @@ function mh(model::GPmodel)
     x = rand([1f0, -1f0], c.N)
     y = inference(model, x)
     for i in 1:c.burnintime
-        update(model, x, y)
+        update!(model, x, y)
     end
     @inbounds for i in 1:c.iters
-        update(model, x, y)
+        update!(model, x, y)
         outxs[i] = x
         outys[i] = y
     end
