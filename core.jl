@@ -36,9 +36,9 @@ function measure()
         E = zeros(Float32, c.batchsize)
         m = zeros(Float32, c.batchsize)
         @threads for i in 1:c.batchsize
-            e[i], m[i] = sampling(model)
+            E[i], m[i] = sampling(model)
         end
-        energy = sum(e) / c.batchsize
+        energy = sum(E) / c.batchsize
         magnet = sum(m) / c.batchsize
 
         # Write Data
