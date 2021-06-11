@@ -2,7 +2,7 @@ module GaussianProcessTPQ
 include("./setup.jl")
 include("./core.jl")
 include("./model.jl")
-using Distributions, LinearAlgebra
+using Distributions, LinearAlgebra, Serialization
 
 function main()
     mkdir("./data")
