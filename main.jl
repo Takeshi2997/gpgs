@@ -2,12 +2,11 @@ include("./gpmain.jl")
 using .GaussianProcessTPQ
 
 function main()
-    # rm Data File make
-    dirname = "./data"
-    rm(dirname, force=true, recursive=true)
-
     # Imaginary time development
-    GaussianProcessTPQ.main()
+    GaussianProcessTPQ.gp_imaginary_time_evolution()
+
+    # Physical value sampling
+    GaussianProcessTPQ.gp_sampling()
 end
 
 main()
