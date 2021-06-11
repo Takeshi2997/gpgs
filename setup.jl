@@ -32,7 +32,7 @@ function GP_Data()
     burnintime = 10
     iters = 1000
     batchsize = 32
-    iT    = 100
+    iT = 100
     θ₁ = 1f0
     θ₂ = 0.01f0
     GP_Data(N, h, J, t, Δτ, num, auxn, burnintime, iters, batchsize, iT, θ₁, θ₂)

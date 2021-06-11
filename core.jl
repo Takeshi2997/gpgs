@@ -33,13 +33,13 @@ function measure()
         model = makemodel(xs, ys)
 
         # numialize Physical Value
-        E = zeros(Float32, c.batchsize)
-        m = zeros(Float32, c.batchsize)
+        es = zeros(Float32, c.batchsize)
+        ms = zeros(Float32, c.batchsize)
         @threads for i in 1:c.batchsize
-            E[i], m[i] = sampling(model)
+            es[i], ms[i] = sampling(model)
         end
-        energy = sum(E) / c.batchsize
-        magnet = sum(m) / c.batchsize
+        energy = sum(es) / c.batchsize
+        magnet = sum(ms) / c.batchsize
 
         # Write Data
         open("./data/" * filename, "a") do io
@@ -54,7 +54,7 @@ function measure()
 end
 
 function sampling(model::GPmodel)
-    E = 0f0im
+    u = 0f0im
     m = 0f0
     # Metropolice sampling
     xs, ys = mh(model)
@@ -65,10 +65,10 @@ function sampling(model::GPmodel)
         y = ys[n]
         e = energy(x, y, model) / c.N
         h = sum(@views x[1:c.N]) / c.N
-        E += e
+        u += e
         m += h
     end
-    real(E) / c.iters, m / c.iters
+    real(u) / c.iters, m / c.iters
 end
 
 function mh(model::GPmodel)
