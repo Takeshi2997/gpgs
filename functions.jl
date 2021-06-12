@@ -16,23 +16,17 @@ function Flip()
 end
 const a = Flip()
 
-function update!(model::GPmodel, x::Vector{Float32}, y::Complex{Float32})
-    x0 = copy(x)
-    y0 = copy(y)
+function update!(model::GPmodel, x::Vector{Float32})
     n = length(x)
     rng = MersenneTwister(1234)
     randomnum = rand(rng, Float32, n)
     @inbounds for ix in 1:n
-        xflip = a.flip[ix] * x0
-        yflip = inference(model, xflip)
-        prob  = exp(2f0 * real(yflip - y0))
-        if randomnum[ix] < prob
-            x0 = xflip
-            y0 = yflip
-        end
+        x₁ = x[ix]
+        y  = inference(model, x)
+        yflip = inference(model, a.flip[ix] * x)
+        prob  = exp(2f0 * real(yflip - y))
+        x[ix] = ifelse(randomnum[ix] < prob, -x₁, x₁)
     end
-    x = x0
-    y = y0
 end
 
 function hamiltonian_heisenberg(x::Vector{Float32}, y::Complex{Float32}, 

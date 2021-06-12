@@ -57,12 +57,11 @@ function sampling(model::GPmodel)
     u = 0f0im
     m = 0f0
     # Metropolice sampling
-    xs, ys = mh(model)
+    xs = mh(model)
     
     # Calculate Physical Value
-    for n in 1:length(xs)
-        x = xs[n]
-        y = ys[n]
+    for x in xs
+        y = inference(model, x)
         e = energy(x, y, model) / c.N
         h = sum(@views x[1:c.N]) / c.N
         u += e
@@ -73,16 +72,13 @@ end
 
 function mh(model::GPmodel)
     outxs = Vector{Vector{Float32}}(undef, c.iters)
-    outys = Vector{Complex{Float32}}(undef, c.iters)
     x = rand([1f0, -1f0], c.N)
-    y = inference(model, x)
     for i in 1:c.burnintime
-        update!(model, x, y)
+        update!(model, x)
     end
     @inbounds for i in 1:c.iters
-        update!(model, x, y)
+        update!(model, x)
         outxs[i] = x
-        outys[i] = y
     end
-    outxs, outys
+    outxs
 end
