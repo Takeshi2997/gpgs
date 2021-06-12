@@ -74,7 +74,7 @@ function hamiltonian_XY(x::Vector{T}, y::Complex{T}, model::GPmodel, iy::Integer
         yflip = inference(model, a.flip[iynext] * a.flip[iy] * x)
         out  += exp(yflip - y)
     end
-    return -c.t * out
+    return c.t * out
 end
 
 function energy_XY(x::Vector{T}, y::Complex{T}, model::GPmodel) where {T <: Real}
