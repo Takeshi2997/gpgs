@@ -19,7 +19,7 @@ function makemodel(xs::Vector{Vector{T}}, ys::Vector{Complex{T}}) where {T<:Real
 
     # Step3
     QMM = KMM + KMN * (Λ \ KMN')
-    û = KMM * (QMM \ (KMN * (Λ \ exp.(ys))))
+    û = KMM * (QMM \ (KMN * (Λ \ ys)))
     Σ̂ = KMM * (QMM \ KMM)
     iKu = KMM \ û
     iΣ  = inv(Σ̂)
@@ -43,7 +43,7 @@ end
 
 function distance(x::Vector{T}, y::Vector{T}) where {T<:Real}
     rs = map(i -> norm(circshift(x, i-1) - y) / 2f0 / c.N, 1:c.N)
-    minimum(rs)
+    sum(rs)
 end
 
 function kernel(x::Vector{T}, y::Vector{T}) where {T<:Real}

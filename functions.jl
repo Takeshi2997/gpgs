@@ -87,9 +87,9 @@ end
 
 function energy(x::Vector{Float32}, y::Complex{Float32}, model::GPmodel)
     e = 0f0im
-#    e = energy_ising(x, y, model)
+    e = energy_ising(x, y, model)
 #    e = energy_heisenberg(x, y, model)
-    e = energy_XY(x, y, model)
+#    e = energy_XY(x, y, model)
     return e
 end
 
