@@ -38,7 +38,7 @@ function inference(model::GPmodel, x::Vector{T}) where {T<:Real}
     var = k0 - kv' * iΣ * kv
 
     # sample from gaussian
-    log.(sqrt(var) * randn(Complex{T}) + mu)
+    sqrt(var) * randn(Complex{T}) + mu
 end
 
 function distance(x::Vector{T}, y::Vector{T}) where {T<:Real}

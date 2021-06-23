@@ -31,7 +31,7 @@ function GP_Data()
     auxn = 64
     burnintime = 10
     iters = 1000
-    batchsize = 32
+    batchsize = 8
     iT = 100
     θ₁ = 1f0
     θ₂ = 0.01f0
