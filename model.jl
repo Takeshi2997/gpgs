@@ -2,8 +2,9 @@ include("./setup.jl")
 using LinearAlgebra
 
 mutable struct GPmodel{T<:AbstractArray, S<:Complex}
-    zs::Vector{T}
+    xs::Vector{T}
     ys::Vector{S}
+    zs::Vector{T}
     iKu::Vector{S}
     iΣ::Array{S}
 end
@@ -25,7 +26,7 @@ function makemodel(xs::Vector{Vector{T}}, ys::Vector{Complex{T}}) where {T<:Real
     iΣ  = inv(Σ̂)
 
     # Output
-    GPmodel(zs, ys, iKu, iΣ)
+    GPmodel(xs, ys, zs, iKu, iΣ)
 end
 
 function inference(model::GPmodel, x::Vector{T}) where {T<:Real}
