@@ -20,7 +20,7 @@ function makemodel(xs::Vector{Vector{T}}, ys::Vector{Complex{T}}) where {T<:Real
 
     # Step3
     QMM = KMM + KMN * (Λ \ KMN')
-    û = KMM * (QMM \ (KMN * (Λ \ log.(exp.(ys) + 1f0))))
+    û = KMM * (QMM \ (KMN * (Λ \ log.(exp.(ys) .+ 1f0))))
     Σ̂ = KMM * (QMM \ KMM)
     iKu = KMM \ û
     iΣ  = inv(Σ̂)
