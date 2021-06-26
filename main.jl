@@ -1,4 +1,4 @@
-using LinearAlgebra, Random
+using LinearAlgebra, Random. Threads
 
 struct GP_Data{T<:Real, S<:Integer}
     NSpin::S
