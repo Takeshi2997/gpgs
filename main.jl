@@ -27,7 +27,7 @@ end
 function choosesample(data_x::Vector{State}, data_y::Vector{T}) where {T<:Real}
     for i in 1:length(data_y)
         x = rand([1.0, -1.0], c.NSpin)
-        shift = [circshift(x, s) for s in 1:NSpin]
+        shift = [circshift(x, s) for s in 1:c.NSpin]
         data_x[i] = State(x, shift)
         data_y[i] = rand()
     end
@@ -36,30 +36,31 @@ end
 const A = 100
 
 function kernel(x1::State, x2::State)
-    v = [norm(circshift(x1.spin, n) - x2.spin) for n in 1:length(x1.spin)]
-    v /= c.NSpin
+    v = [norm(x1.shift[n] - x2.spin) for n in 1:length(x1.spin)]
+    v ./= c.NSpin
     sum(exp.(-v ./ A))
 end
 
-function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Real}
+function makeinverse(data_x::Vector{State}) where {T<:Real}
     for i in 1:c.NData
         for j in i:c.NData
             KI[i, j] = kernel(data_x[i], data_x[j])
             KI[j, i] = KI[i, j]
         end
     end
-    inv(KI)
+    U, Δ, V = svd(KI)
+    invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
+    V * invΔ * U'
 end
 
 function makepvector(data_x::Vector{State}, data_y::Vector{T}, pvec::Vector{T}) where {T<:Real}
-    KI = Array(T)(undef, c.NData, c.NData)
-    makeinverse(KI, data_x)
+    KI = makeinverse(data_x)
     pvec = KI * data_y
 end
 
 function predict(x::State, data_x::Vector{State}, pvector::Vector{T}) where {T<:Real}
     kv = [kernel(x, data_x[i]) for i in 1:c.NData]
-    kv * pvector
+    kv' * pvector
 end
 
 function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector{T}) where {T<:Real}
