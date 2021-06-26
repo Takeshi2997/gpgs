@@ -42,10 +42,11 @@ function kernel(x1::State, x2::State)
 end
 
 function makeinverse(data_x::Vector{State}) where {T<:Real}
+    K = zeros(T, c.NData, c.NData)
     for i in 1:c.NData
         for j in i:c.NData
-            KI[i, j] = kernel(data_x[i], data_x[j])
-            KI[j, i] = KI[i, j]
+            K[i, j] = kernel(data_x[i], data_x[j])
+            K[j, i] = K[i, j]
         end
     end
     U, Δ, V = svd(KI)
