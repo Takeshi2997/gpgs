@@ -48,7 +48,7 @@ function measure()
         @threads for x in x_mc
             y = predict(model, x)
             e = energy(x, y, model) / c.nspin
-            h = sum(@views x[1:c.nspin]) / c.nspin
+            h = sum(x.spin) / c.nspin
             u += e
             m += h
         end
