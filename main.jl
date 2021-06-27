@@ -73,6 +73,7 @@ function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector
         for j in 1:c.NSpin
             H_ψ[i] -= data_x[i].spin[j] * data_x[i].spin[j%c.NSpin+1] * exp(data_y[i])
             xtmp_spin = copy(data_x[i].spin)
+            xtmp_spin[j] *= -1
             xtmp = State(xtmp_spin)
             y = predict(xtmp, data_x, pvector)
             H_ψ[i] -= c.H * exp(y)
@@ -80,15 +81,17 @@ function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector
     end
     data_y = exp.(data_y) - H_ψ * 0.1
     v = sum(exp.(data_y)) / c.NData
-    data_y .-= log.(v)
+    data_y[:] .-= log(v)
 end
 
 function tryflip(x::State, data_x::Vector{State}, pvector::Vector{T}, eng::MersenneTwister) where {T<:Real}
     pos = rand(eng, collect(1:c.NSpin))
     y = predict(x, data_x, pvector)
-    x.spin[pos] *= -1
-    y_new = predict(x, data_x, pvector)
-    x.spin[pos] = ifelse(rand(eng) > exp(2 * (y_new - y)), -1.0, 1.0)
+    xflip_spin = copy(x.spin)
+    xflip_spin[j] *= -1
+    xflip = State(xtmp_spin)
+    y_new = predict(xflip, data_x, pvector)
+    x.spin[pos] *= ifelse(rand(eng) < exp(2 * (y_new - y)), -1.0, 1.0)
 end
 
 function localenergy(x::State, data_x::Vector{State}, pvector::Vector{T}) where {T<:Real}
