@@ -69,8 +69,8 @@ end
 
 function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector{T}) where {T<:Real}
     H_ψ = zeros(T, c.NData)
-    for i in 1:c.NData
-        for j in 1:c.NData
+    @threads for i in 1:c.NData
+        for j in 1:c.NSpin
             H_ψ[i] -= data_x[i].spin[j] * data_x[i].spin[j%c.NSpin+1] * exp(data_y[i])
             xtmp_spin = copy(data_x[i].spin)
             xtmp = State(xtmp_spin)
