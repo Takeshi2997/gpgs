@@ -42,13 +42,13 @@ function measure()
         # Metropolice sampling
         x_mc = mh(model)
 
+        # Calculate Physical Value
         u = 0.0
         m = 0.0
-        # Calculate Physical Value
-        for x in x_mc
+        @threads for x in x_mc
             y = predict(model, x)
             e = energy(x, y, model) / c.nspin
-            h = sum(@views x[1:c.N]) / c.nspin
+            h = sum(@views x[1:c.nspin]) / c.nspin
             u += e
             m += h
         end
