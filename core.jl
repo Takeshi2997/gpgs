@@ -15,7 +15,7 @@ function imaginarytime(model::GPmodel)
             x = xs[i]
             y = ys[i]
             e = energy(x, y, model)
-            ys′[i] = log((1f0 - c.Δτ * e / c.nspin) * exp(y))
+            ys′[i] = log((1.0 - c.Δτ * e / c.nspin) * exp(y))
         end
         v = sum(exp.(ys′)) / c.ndata
         ys′ .-= v

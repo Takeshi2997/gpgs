@@ -38,14 +38,14 @@ function makeinverse(iK::Array{T}, data_x::Vector{State}) where {T<:Complex}
     iK[:, :] = V * invΔ * U'
 end
 
-function predict(model::GPmodel, x::Vector{State})
+function predict(model::GPmodel, x::State)
     xs, ys, pvec, iK = model.xs, model.ys, model.pvec, model.iK
 
     # Compute mu var
-    kv = map(xloc -> kernel(xloc, x), xs)
+    kv = map(xloc -> kernel(x, xloc), xs)
     k0 = kernel(x, x)
-    mu = kv' * iKu
-    var = k0 - kv' * iΣ * kv
+    mu = kv' * pvec
+    var = k0 - kv' * iK * kv
 
     # sample from gaussian
     sqrt(var) * randn(Complex{Float64}) + mu
