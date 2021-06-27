@@ -36,7 +36,7 @@ function choosesample(data_x::Vector{State}, data_y::Vector{T}) where {T<:Real}
     end
 end
 
-const A = 100
+const A = 100.0
 
 function kernel(x1::State, x2::State)
     v = [norm(x1.shift[n] - x2.spin) for n in 1:length(x1.spin)]
@@ -100,7 +100,7 @@ function localenergy(x::State, data_x::Vector{State}, pvector::Vector{T}) where 
     for i in 1:c.NSpin
         eloc -= x.spin[i] * x.spin[i%c.NSpin+1]
         xflip_spin = copy(x.spin)
-        xflip_spin[pos] *= -1
+        xflip_spin[i] *= -1
         xflip = State(xflip_spin)
         y2 = predict(xflip, data_x, pvector)
         eloc -= c.H * exp(y2 - y)
