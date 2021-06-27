@@ -18,7 +18,7 @@ function imaginarytime(model::GPmodel)
             ys′[i] = log((1.0 - c.Δτ * e / c.nspin) * exp(y))
         end
         v = sum(exp.(ys′)) / c.ndata
-        ys′ .-= v
+        ys′ .-= log(v)
         model = GPmodel(xs, ys′)
         x_spins = [x.spin for x in xs]
         outdata = (x_spins, ys′)

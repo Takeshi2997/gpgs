@@ -30,7 +30,6 @@ function GP_Data()
     ndata = 64
     nmc = 1024
     mcskip = 16
-    batchsize = 8
     iT = 200
     θ₁ = 1.0
     θ₂ = 100.0
