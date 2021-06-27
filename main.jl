@@ -6,7 +6,7 @@ function main()
     GaussianProcessTPQ.gp_imaginary_time_evolution()
 
     # Physical value sampling
-#    GaussianProcessTPQ.gp_sampling()
+    GaussianProcessTPQ.gp_sampling()
 end
 
 main()

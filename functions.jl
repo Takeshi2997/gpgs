@@ -23,7 +23,7 @@ function update!(model::GPmodel, x::State)
     xflip = State(xflip_spin)
     y = predict(model, x)
     yflip = predict(model, xflip)
-    x.spin[pos] *= ifelse(rand(eng) < exp(2 * real(yflip - y)), -1.0, 1.0)
+    x.spin[pos] *= ifelse(rand() < exp(2 * real(yflip - y)), -1.0, 1.0)
 end
 
 function energy_ising(x::State, y::Complex{T}, model::GPmodel) where {T<:Real}

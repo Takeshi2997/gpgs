@@ -46,7 +46,7 @@ function measure()
         m = 0.0
         # Calculate Physical Value
         for x in x_mc
-            y = inference(model, x)
+            y = predict(model, x)
             e = energy(x, y, model) / c.nspin
             h = sum(@views x[1:c.N]) / c.nspin
             u += e

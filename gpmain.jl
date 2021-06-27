@@ -30,6 +30,6 @@ end
 
 function gp_sampling()
     # MCMC Sampling
-#     measure()
+    measure()
 end
 end
