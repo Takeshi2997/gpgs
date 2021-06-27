@@ -17,7 +17,7 @@ function GP_Data()
 end
 const c = GP_Data()
 
-EngArray = [MersenneTwister(1234) for i in 1:nthreads()]
+EngArray = Vector{MersenneTwister}(undef, nthreads())
 
 mutable struct State{T<:Real}
     spin::Vector{T}
@@ -120,7 +120,7 @@ end
 
 function main(filename::String)
     for i in 1:nthreads()
-        EngArray[i] = MersenneTwister(i+0)
+        EngArray[i] = MersenneTwister(i)
     end
     eng = EngArray[1]
     data_x = Vector{State}(undef, c.NData)
