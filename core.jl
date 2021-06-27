@@ -33,7 +33,10 @@ function measure()
         # Make model
         xydata = open(deserialize, "./data/" * filenames[it+1])
         x_spins, ys = xydata
-        xs = State(xs)
+        xs = Vector{State}(undef, c.ndata)
+        for i in 1:c.ndata
+            xs[i] = State(x_spins[i])
+        end
         model = GPmodel(xs, ys)
 
         # Metropolice sampling
