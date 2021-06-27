@@ -79,7 +79,7 @@ function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector
             H_ψ[i] -= c.H * exp(y)
         end
     end
-    data_y = exp.(data_y) - H_ψ * 0.1
+    data_y = log.(exp.(data_y) - H_ψ * 0.1)
     v = sum(exp.(data_y)) / c.NData
     data_y[:] .-= log(v)
 end
@@ -99,10 +99,11 @@ function localenergy(x::State, data_x::Vector{State}, pvector::Vector{T}) where 
     eloc = 0.0
     for i in 1:c.NSpin
         eloc -= x.spin[i] * x.spin[i%c.NSpin+1]
-        x.spin[i] *= -1
-        y2 = predict(x, data_x, pvector)
+        xflip_spin = copy(x.spin)
+        xflip_spin[pos] *= -1
+        xflip = State(xflip_spin)
+        y2 = predict(xflip, data_x, pvector)
         eloc -= c.H * exp(y2 - y)
-        x.spin[i] *= -1
     end
     eloc
 end
