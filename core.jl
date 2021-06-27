@@ -1,4 +1,5 @@
 include("./setup.jl")
+include("./functions.jl")
 include("./model.jl")
 using Base.Threads, Serialization, LinearAlgebra
 

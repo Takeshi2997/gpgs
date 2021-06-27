@@ -25,7 +25,7 @@ function gp_imaginary_time_evolution()
     open(io -> serialize(io, outdata), "./data/gpdata0000.dat", "w")
  
     # GP imaginary time evolution
-    imagynarytime(model)
+    imaginarytime(model)
 end
 
 function gp_sampling()
