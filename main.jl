@@ -23,12 +23,15 @@ mutable struct State{T<:Real}
     spin::Vector{T}
     shift::Vector{Vector{T}}
 end
+function State(x::Vector{T}) where {T<:Real}
+    shift = [circshift(x, s) for s in 1:c.NSpin]
+    State(x, shift)
+end
 
 function choosesample(data_x::Vector{State}, data_y::Vector{T}) where {T<:Real}
     for i in 1:length(data_y)
         x = rand([1.0, -1.0], c.NSpin)
-        shift = [circshift(x, s) for s in 1:c.NSpin]
-        data_x[i] = State(x, shift)
+        data_x[i] = State(x)
         data_y[i] = rand()
     end
 end
@@ -41,22 +44,22 @@ function kernel(x1::State, x2::State)
     sum(exp.(-v ./ A))
 end
 
-function makeinverse(data_x::Vector{State}) where {T<:Real}
-    K = zeros(T, c.NData, c.NData)
+function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Real}
     for i in 1:c.NData
         for j in i:c.NData
             K[i, j] = kernel(data_x[i], data_x[j])
-            K[j, i] = K[i, j]
+            K[j, i] = KI[i, j]
         end
     end
     U, Δ, V = svd(KI)
     invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
-    V * invΔ * U'
+    KI[:, :] = V * invΔ * U'
 end
 
 function makepvector(data_x::Vector{State}, data_y::Vector{T}, pvec::Vector{T}) where {T<:Real}
-    KI = makeinverse(data_x)
-    pvec = KI * data_y
+    KI = Array{T}(undef, c.NData, c.NData)
+    makeinverse(KI, data_x)
+    pvec[:] = KI * data_y
 end
 
 function predict(x::State, data_x::Vector{State}, pvector::Vector{T}) where {T<:Real}
@@ -69,8 +72,8 @@ function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector
     for i in 1:c.NData
         for j in 1:c.NData
             H_ψ[i] -= data_x[i].spin[j] * data_x[i].spin[j%c.NSpin+1] * exp(data_y[i])
-            xtmp = copy(data_x[i])
-            xtmp.spin[j] *= -1
+            xtmp_spin = copy(data_x[i].spin)
+            xtmp = State(xtmp_spin)
             y = predict(xtmp, data_x, pvector)
             H_ψ[i] -= c.H * exp(y)
         end
