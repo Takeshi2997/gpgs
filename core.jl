@@ -1,7 +1,7 @@
 include("./setup.jl")
 include("./functions.jl")
 include("./model.jl")
-using Base.Threads, Serialization, LinearAlgebra
+using Base.Threads, Serialization, LinearAlgebra, Random
 
 const filenames = ["gpdata" * lpad(it, 4, "0") * ".dat" for it in 0:c.iT]
 const filename  = "physicalvalue.txt"
@@ -70,9 +70,11 @@ end
 function mh(model::GPmodel)
     outxs = Vector{State}(undef, c.nmc)
     x = State(rand([1f0, -1f0], c.nspin))
+    rng = MersenneTwister(1234)
+    prob = rand(rng, c.nmc * c.mcskip)
     @inbounds for i in 1:c.nmc
         for j in 1:c.mcskip
-            update!(model, x)
+            update!(model, x, prob[i * j])
         end
         outxs[i] = x
     end

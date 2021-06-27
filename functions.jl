@@ -1,6 +1,6 @@
 include("./setup.jl")
 include("./model.jl")
-using LinearAlgebra, Random
+using LinearAlgebra
 
 struct Flip{T<:Real}
     flip::Vector{Diagonal{T}}
@@ -16,14 +16,14 @@ function Flip()
 end
 const a = Flip()
 
-function update!(model::GPmodel, x::State)
+function update!(model::GPmodel, x::State, prob::Float64)
     pos = rand(collect(1:c.nspin))
     xflip_spin = copy(x.spin)
     xflip_spin[pos] *= -1
     xflip = State(xflip_spin)
     y = predict(model, x)
     yflip = predict(model, xflip)
-    x.spin[pos] *= ifelse(rand() < exp(2 * real(yflip - y)), -1.0, 1.0)
+    x.spin[pos] *= ifelse(prob < exp(2 * real(yflip - y)), -1.0, 1.0)
 end
 
 function energy_ising(x::State, y::Complex{T}, model::GPmodel) where {T<:Real}

@@ -1,9 +1,6 @@
 mutable struct State{T<:Real}
     spin::Vector{T}
 end
-function State(x::Vector{T}) where {T<:Real}
-    State(x)
-end
 
 # mutable struct State{T<:Real}
 #     spin::Vector{T}
@@ -28,7 +25,7 @@ function GPmodel(xs::Vector{State}, ys::Vector{T}) where {T<:Complex}
 end
 
 function kernel(x1::State, x2::State)
-    r = norm(x1.spin - x2.spin)
+    v = norm(x1.spin - x2.spin)
     v /= c.nspin
     c.θ₁ * exp.(-v / c.θ₂)
 end
