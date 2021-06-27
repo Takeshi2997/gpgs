@@ -17,7 +17,7 @@ function GP_Data()
 end
 const c = GP_Data()
 
-EngArray = [MersenneTwister(1234) for i in 1:nthreads]
+EngArray = [MersenneTwister(1234) for i in 1:nthreads()]
 
 mutable struct State{T<:Real}
     spin::Vector{T}
