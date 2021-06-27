@@ -88,7 +88,7 @@ function tryflip(x::State, data_x::Vector{State}, pvector::Vector{T}, eng::Merse
     pos = rand(eng, collect(1:c.NSpin))
     y = predict(x, data_x, pvector)
     xflip_spin = copy(x.spin)
-    xflip_spin[j] *= -1
+    xflip_spin[pos] *= -1
     xflip = State(xtmp_spin)
     y_new = predict(xflip, data_x, pvector)
     x.spin[pos] *= ifelse(rand(eng) < exp(2 * (y_new - y)), -1.0, 1.0)
