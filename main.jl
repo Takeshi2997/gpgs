@@ -17,7 +17,7 @@ function GP_Data()
 end
 const c = GP_Data()
 
-EngArray = [MersenneTwister(1234) for i in 1:256]
+EngArray = [MersenneTwister(1234) for i in 1:nthreads]
 
 mutable struct State{T<:Real}
     spin::Vector{T}
@@ -79,26 +79,26 @@ function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector
         end
     end
     data_y = exp.(data_y) - H_ψ * 0.1
-    v = sum(exp.(data_y)) / NData
+    v = sum(exp.(data_y)) / c.NData
     data_y .-= log.(v)
 end
 
 function tryflip(x::State, data_x::Vector{State}, pvector::Vector{T}, eng::MersenneTwister) where {T<:Real}
-    pos = rand([1:c.NSpin], eng)
+    pos = rand(eng, collect(1:c.NSpin))
     y = predict(x, data_x, pvector)
     x.spin[pos] *= -1
     y_new = predict(x, data_x, pvector)
-    x.spin[pos] = ifelse(rand(eng) > exp(2 * (y_new - y)), -1, 1)
+    x.spin[pos] = ifelse(rand(eng) > exp(2 * (y_new - y)), -1.0, 1.0)
 end
 
 function localenergy(x::State, data_x::Vector{State}, pvector::Vector{T}) where {T<:Real}
     y = predict(x, data_x, pvector)
     eloc = 0.0
     for i in 1:c.NSpin
-        eloc -= x.spin[i] * x.spin[i%c.Nspin+1]
+        eloc -= x.spin[i] * x.spin[i%c.NSpin+1]
         x.spin[i] *= -1
         y2 = predict(x, data_x, pvector)
-        eloc -= H * exp(y2 - y)
+        eloc -= c.H * exp(y2 - y)
         x.spin[i] *= -1
     end
     eloc
@@ -111,10 +111,11 @@ function energy(x_mc::Vector{State}, data_x::Vector{State}, pvector::Vector{T}) 
             tryflip(x_mc[i], data_x, pvector, eng)
         end
     end
+    ene = 0.0
     @threads for i in 1:c.NMC
         ene += localenergy(x_mc[i], data_x, pvector)
     end
-    ene / NMC
+    ene / c.NMC
 end
 
 function main()
@@ -126,11 +127,10 @@ function main()
     data_y = Vector{Float64}(undef, c.NData)
     choosesample(data_x, data_y)
 
-    batch_x = Vector{c.NMC}
+    batch_x = Vector{State}(undef, c.NMC)
     for i in 1:c.NMC
         x = rand(eng, [1.0, -1.0], c.NSpin)
-        shift = [circshift(x, s) for s in 1:NSpin]
-        batch_x[i] = State(x, shift)
+        batch_x[i] = State(x)
     end
     
     for i in 1:200
