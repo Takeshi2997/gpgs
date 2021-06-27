@@ -118,7 +118,7 @@ function energy(x_mc::Vector{State}, data_x::Vector{State}, pvector::Vector{T}) 
     ene / c.NMC
 end
 
-function main()
+function main(filename::String)
     for i in 1:nthreads()
         EngArray[i] = MersenneTwister(i+0)
     end
@@ -147,4 +147,9 @@ function main()
     end
 end
 
-main()
+dirname = "./data"
+rm(dirname, force=true, recursive=true)
+mkdir("./data")
+filename  = "physicalvalue.txt"
+touch("./data/" * filename)
+main(filename)
