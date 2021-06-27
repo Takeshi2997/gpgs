@@ -19,7 +19,7 @@ function imaginarytime(model::GPmodel)
         end
         v = sum(exp.(ys′)) / c.ndata
         ys′ .-= v
-        model = makemodel(xs, ys′)
+        model = GPmodel(xs, ys′)
         outdata = (xs, ys′)
         open(io -> serialize(io, outdata), "./data/" * filenames[it+1], "w")
     end
