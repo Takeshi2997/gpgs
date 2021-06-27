@@ -10,7 +10,7 @@ function imaginarytime(model::GPmodel)
         # Model Update!
         xs, ys = model.xs, model.ys
         ys′ = copy(ys)
-        @simd for i in 1:c.num
+        @simd for i in 1:c.ndata
             x = xs[i]
             y = ys[i]
             e = energy(x, y, model)

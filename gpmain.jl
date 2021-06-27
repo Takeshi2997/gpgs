@@ -1,6 +1,6 @@
 module GaussianProcessTPQ
 include("./setup.jl")
-# include("./core.jl")
+include("./core.jl")
 include("./model.jl")
 using Distributions, LinearAlgebra, Serialization
 
