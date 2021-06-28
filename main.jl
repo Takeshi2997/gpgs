@@ -1,4 +1,4 @@
-using LinearAlgebra, Random, Base.Threads
+using LinearAlgebra, Random, Base.Threads, Folds
 
 struct GP_Data{T<:Real, S<:Integer}
     NSpin::S
@@ -15,7 +15,7 @@ function GP_Data()
     H = 4.0
     GP_Data(NSpin, NData, NMC, MCSkip, H)
 end
-const c = GP_Data()
+c = GP_Data()
 
 EngArray = Vector{MersenneTwister}(undef, nthreads())
 
@@ -70,7 +70,7 @@ end
 function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector{T}) where {T<:Real}
     H_ψ = zeros(T, c.NData)
     @threads for i in 1:c.NData
-        for j in 1:c.NSpin
+        @simd for j in 1:c.NSpin
             H_ψ[i] -= data_x[i].spin[j] * data_x[i].spin[j%c.NSpin+1] * exp(data_y[i])
             xtmp_spin = copy(data_x[i].spin)
             xtmp_spin[j] *= -1
@@ -110,15 +110,12 @@ end
 
 function energy(x_mc::Vector{State}, data_x::Vector{State}, pvector::Vector{T}) where {T<:Real}
     @threads for i in 1:c.NMC
-        for j in 1:c.MCSkip
+        @simd for j in 1:c.MCSkip
             eng = EngArray[threadid()]
             tryflip(x_mc[i], data_x, pvector, eng)
         end
     end
-    ene = 0.0
-    @threads for i in 1:c.NMC
-        ene += localenergy(x_mc[i], data_x, pvector)
-    end
+    ene = Folds.sum(localenergy(x, data_x, pvector) for x in x_mc)
     ene / c.NMC
 end
 
