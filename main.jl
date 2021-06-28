@@ -52,7 +52,7 @@ function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Real}
         end
     end
     U, Δ, V = svd(KI)
-    invΔ = Diagonal(1f0 ./ Δ .* (Δ .> 1f-6))
+    invΔ = Diagonal(1.0 ./ Δ .* (Δ .> 1f-3))
     KI[:, :] = V * invΔ * U'
 end
 
