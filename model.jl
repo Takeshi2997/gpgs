@@ -25,7 +25,7 @@ end
 function kernel(x1::State, x2::State)
     v = [norm(x1.shift[n] - x2.spin)^2 for n in 1:length(x1.spin)]
     v ./= c.NSpin
-    sum(exp.(-v ./ A))
+    sum(exp.(-v ./ c.A))
 end
 
 function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Complex}
@@ -49,7 +49,7 @@ function predict(x::State, model::GPmodel)
     mu  = kv' * pvec
     var = k0 - kv' * KI * kv
 
-    sqrt(var) * randn(typeof(mu)) + mu
+    log(sqrt(var) * randn(typeof(mu)) + mu
 end
 
 
