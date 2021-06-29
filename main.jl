@@ -28,7 +28,7 @@ function main(filename::String)
     end
 
     for i in 1:200
-        imaginarytime(model)
+        model = imaginarytime(model)
         ene = energy(batch_x, model)
         open("./data/" * filename, "a") do io
             write(io, string(i))
