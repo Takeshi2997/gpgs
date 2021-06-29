@@ -1,63 +1,55 @@
+include("./setup.jl")
+
 mutable struct State{T<:Real}
     spin::Vector{T}
+    shift::Vector{Vector{T}}
 end
-
-# mutable struct State{T<:Real}
-#     spin::Vector{T}
-#     shift::Vector{Vector{T}}
-# end
-# function State(x::Vector{T}) where {T<:Real}
-#     shift = [circshift(x, s) for s in 1:c.nspin]
-#     State(x, shift)
-# end
+function State(x::Vector{T}) where {T<:Real}
+    shift = [circshift(x, s) for s in 1:c.NSpin]
+    State(x, shift)
+end
 
 mutable struct GPmodel{T<:Complex}
-    xs::Vector{State}
-    ys::Vector{T}
+    data_x::Vector{State}
+    data_y::Vector{T}
     pvec::Vector{T}
-    iK::Array{T}
+    KI::Array{T}
 end
-function GPmodel(xs::Vector{State}, ys::Vector{T}) where {T<:Complex}
-    iK = Array{T}(undef, c.ndata, c.ndata)
-    makeinverse(iK, xs)
-    pvec = iK * ys
-    GPmodel(xs, ys, pvec, iK)    
+function GPmodel(data_x::Vector{State}, data_y::Vector{T}) where {T<:Complex}
+    KI = Array{T}(undef, c.NData, c.NData)
+    makeinverse(KI, data_x)
+    pvec = KI * data_y
+    GPmodel(data_x, data_y, pvec, KI)
 end
 
 function kernel(x1::State, x2::State)
-    v = norm(x1.spin - x2.spin)
-    v /= c.nspin
-    c.θ₁ * exp.(-v / c.θ₂)
+    v = [norm(x1.shift[n] - x2.spin)^2 for n in 1:length(x1.spin)]
+    v ./= c.NSpin
+    sum(exp.(-v ./ c.A))
 end
 
-# function kernel(x1::State, x2::State)
-#     v = [norm(x1.shift[n] - x2.spin) for n in 1:length(x1.spin)]
-#     v ./= c.nspin
-#     sum(c.θ₁ * exp.(-v ./ c.θ₂))
-# end
-
-function makeinverse(iK::Array{T}, data_x::Vector{State}) where {T<:Complex}
-    for i in 1:c.ndata
-        for j in i:c.ndata
-            iK[i, j] = kernel(data_x[i], data_x[j])
-            iK[j, i] = iK[i, j]
+function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Complex}
+    for i in 1:c.NData
+        for j in i:c.NData
+            KI[i, j] = kernel(data_x[i], data_x[j])
+            KI[j, i] = KI[i, j]
         end
     end
-    U, Δ, V = svd(iK)
-    invΔ = Diagonal(1.0 ./ Δ .* (Δ .> 1e-6))
-    iK[:, :] = V * invΔ * U'
+    # KI[:, :] = inv(KI)
+    U, Δ, V = svd(KI)
+    invΔ = Diagonal(1.0 ./ Δ .* (Δ .> 1e-3))
+    KI[:, :] = V * invΔ * U'
 end
 
-function predict(model::GPmodel, x::State)
-    xs, ys, pvec, iK = model.xs, model.ys, model.pvec, model.iK
+function predict(x::State, model::GPmodel)
+    data_x, data_y, pvec, KI = model.data_x, model.data_y, model.pvec, model.KI
 
-    # Compute mu var
-    kv = map(xloc -> kernel(x, xloc), xs)
+    kv = [kernel(x, data_x[i]) for i in 1:c.NData]
     k0 = kernel(x, x)
-    mu = kv' * pvec
-    var = k0 - kv' * iK * kv
+    mu  = kv' * pvec
+    var = k0 - kv' * KI * kv
 
-    # sample from gaussian
-    sqrt(var) * randn(Complex{Float64}) + mu
+    sqrt(var) * randn(typeof(mu)) + mu
 end
+
 
