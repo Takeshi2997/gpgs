@@ -94,7 +94,8 @@ function tryflip(x::State, data_x::Vector{State}, pvector::Vector{T}, eng::Merse
     y_new = predict(xflip, data_x, pvector)
     x.spin[pos] *= ifelse(rand(eng) < exp(2 * (y_new - y)), -1.0, 1.0)
     x2 = State(x.spin)
-    x.spin, x.shift = x2.spin, x2.shift
+    setfield!(x, :spin, x2.spin)
+    setfield!(x, :shift, x2.shift)
 end
 
 function localenergy(x::State, data_x::Vector{State}, pvector::Vector{T}) where {T<:Real}
