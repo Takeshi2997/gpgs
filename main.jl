@@ -39,7 +39,7 @@ end
 const A = 100.0
 
 function kernel(x1::State, x2::State)
-    v = [norm(x1.shift[n] - x2.spin) for n in 1:length(x1.spin)]
+    v = [norm(x1.shift[n] - x2.spin)^2 for n in 1:length(x1.spin)]
     v ./= c.NSpin
     sum(exp.(-v ./ A))
 end
@@ -51,9 +51,10 @@ function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Real}
             KI[j, i] = KI[i, j]
         end
     end
-    U, Δ, V = svd(KI)
-    invΔ = Diagonal(1.0 ./ Δ .* (Δ .> 1e-3))
-    KI[:, :] = V * invΔ * U'
+    KI[:, :] = inv(KI)
+    # U, Δ, V = svd(KI)
+    # invΔ = Diagonal(1.0 ./ Δ .* (Δ .> 1e-3))
+    # KI[:, :] = V * invΔ * U'
 end
 
 function makepvector(data_x::Vector{State}, data_y::Vector{T}, pvec::Vector{T}) where {T<:Real}
