@@ -93,9 +93,7 @@ function tryflip(x::State, data_x::Vector{State}, pvector::Vector{T}, eng::Merse
     xflip = State(xflip_spin)
     y_new = predict(xflip, data_x, pvector)
     x.spin[pos] *= ifelse(rand(eng) < exp(2 * (y_new - y)), -1.0, 1.0)
-    x2 = State(x.spin)
-    setfield!(x, :spin, x2.spin)
-    setfield!(x, :shift, x2.shift)
+    State(x.spin)
 end
 
 function localenergy(x::State, data_x::Vector{State}, pvector::Vector{T}) where {T<:Real}
@@ -116,7 +114,7 @@ function energy(x_mc::Vector{State}, data_x::Vector{State}, pvector::Vector{T}) 
     @threads for i in 1:c.NMC
         @simd for j in 1:c.MCSkip
             eng = EngArray[threadid()]
-            tryflip(x_mc[i], data_x, pvector, eng)
+            x_mc[i] = tryflip(x_mc[i], data_x, pvector, eng)
         end
     end
     ene = Folds.sum(localenergy(x, data_x, pvector) for x in x_mc)
