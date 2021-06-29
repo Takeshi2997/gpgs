@@ -8,8 +8,8 @@ struct GP_Data{T<:Real, S<:Integer}
     A::T
 end
 function GP_Data()
-    NSpin = 8
-    NData = 6
+    NSpin = 80
+    NData = 64
     NMC = 1024
     MCSkip = 16
     H = 4.0
