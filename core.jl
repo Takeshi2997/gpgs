@@ -29,7 +29,7 @@ end
 function localenergy(x::State, model::GPmodel)
     y = predict(x, model)
     eloc = 0.0im
-    for i in 1:c.NSpin
+    @simd for i in 1:c.NSpin
         eloc -= x.spin[i] * x.spin[i%c.NSpin+1]
         xflip_spin = copy(x.spin)
         xflip_spin[i] *= -1
