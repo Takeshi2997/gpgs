@@ -49,7 +49,7 @@ function predict(x::State, model::GPmodel)
     mu  = kv' * pvec
     var = k0 - kv' * KI * kv
 
-    log(sqrt(var) * randn(typeof(mu)) + mu
+    sqrt(var) * randn(typeof(mu)) + mu
 end
 
 
