@@ -14,7 +14,7 @@ function GP_Data()
     MCSkip = 16
     H = 4.0
     Δτ = 0.1
-    A = 0.1
+    A = 100.0
     GP_Data(NSpin, NData, NMC, MCSkip, H, Δτ, A)
 end
 c = GP_Data()
