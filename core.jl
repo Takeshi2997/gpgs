@@ -24,7 +24,6 @@ function tryflip(x::State, model::GPmodel, eng::MersenneTwister)
     x.spin[pos] *= ifelse(rand(eng) < exp(2 * real(y_new - y)), -1, 1)
     x2 = State(x.spin)
     setfield!(x, :spin, x2.spin)
-    setfield!(x, :shift, x2.shift)
 end
 
 function localenergy(x::State, model::GPmodel)
