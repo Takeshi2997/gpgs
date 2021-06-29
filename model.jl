@@ -2,11 +2,6 @@ include("./setup.jl")
 
 mutable struct State{T<:Real}
     spin::Vector{T}
-    shift::Vector{Vector{T}}
-end
-function State(x::Vector{T}) where {T<:Real}
-    shift = [circshift(x, s) for s in 1:c.NSpin]
-    State(x, shift)
 end
 
 mutable struct GPmodel{T<:Complex}
@@ -18,14 +13,14 @@ end
 function GPmodel(data_x::Vector{State}, data_y::Vector{T}) where {T<:Complex}
     KI = Array{T}(undef, c.NData, c.NData)
     makeinverse(KI, data_x)
-    pvec = KI * data_y
+    pvec = KI * exp.(data_y)
     GPmodel(data_x, data_y, pvec, KI)
 end
 
 function kernel(x1::State, x2::State)
-    v = [norm(x1.shift[n] - x2.spin)^2 for n in 1:length(x1.spin)]
-    v ./= c.NSpin
-    sum(exp.(-v ./ c.A))
+    v = norm(x1.spin - x2.spin)^2
+    v /= c.NSpin
+    exp(-v / c.A)
 end
 
 function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Complex}
@@ -49,7 +44,7 @@ function predict(x::State, model::GPmodel)
     mu  = kv' * pvec
     var = k0 - kv' * KI * kv
 
-    sqrt(var) * randn(typeof(mu)) + mu
+    log(sqrt(var) * randn(typeof(mu)) + mu)
 end
 
 
