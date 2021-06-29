@@ -21,9 +21,15 @@ function main(filename::String)
     data_y = log.(ψ)
     model = GPmodel(data_x, data_y)
 
+    batch_x = Vector{State}(undef, c.NMC)
+    for i in 1:c.NMC
+        x = rand(eng, [1.0, -1.0], c.NSpin)
+        batch_x[i] = State(x)
+    end
+
     for i in 1:200
         imaginarytime(model)
-        ene = energy(model)
+        ene = energy(batch_x, model)
         open("./data/" * filename, "a") do io
             write(io, string(i))
             write(io, "\t")
