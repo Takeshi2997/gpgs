@@ -51,10 +51,10 @@ function makeinverse(KI::Array{T}, data_x::Vector{State}) where {T<:Real}
             KI[j, i] = KI[i, j]
         end
     end
-    KI[:, :] = inv(KI)
-    # U, Δ, V = svd(KI)
-    # invΔ = Diagonal(1.0 ./ Δ .* (Δ .> 1e-3))
-    # KI[:, :] = V * invΔ * U'
+    # KI[:, :] = inv(KI)
+    U, Δ, V = svd(KI)
+    invΔ = Diagonal(1.0 ./ Δ .* (Δ .> 1e-6))
+    KI[:, :] = V * invΔ * U'
 end
 
 function makepvector(data_x::Vector{State}, data_y::Vector{T}, pvec::Vector{T}) where {T<:Real}
