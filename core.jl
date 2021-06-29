@@ -40,12 +40,15 @@ function localenergy(x::State, model::GPmodel)
     eloc
 end
 
-function energy(x_mc::Vector{State}, model::GPmodel)
-    @threads for i in 1:c.NMC
-        @simd for j in 1:c.MCSkip
+function energy(model::GPmodel)
+    x_mc = Vector{State}(undef, c.NMC)
+    x0 = State(rand([1.0, -1.0], c.NSpin))
+    for i in 1:c.NMC
+        for j in 1:c.MCSkip
             eng = EngArray[threadid()]
-            tryflip(x_mc[i], model, eng)
+            tryflip(x0, model, eng)
         end
+        x_mc[i] = x0
     end
     ene = Folds.sum(localenergy(x, model) for x in x_mc)
     real(ene / c.NMC)
