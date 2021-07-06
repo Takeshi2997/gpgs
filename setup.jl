@@ -4,7 +4,7 @@ struct GP_Data{T<:Real, S<:Integer}
     NMC::S
     MCSkip::S
     H::T
-    Δτ::T
+    l::T
     A::T
 end
 function GP_Data()
@@ -13,9 +13,9 @@ function GP_Data()
     NMC = 1024
     MCSkip = 16
     H = 4.0
-    Δτ = 0.1
-    A = 100.0
-    GP_Data(NSpin, NData, NMC, MCSkip, H, Δτ, A)
+    l = 0.6
+    A = 0.4
+    GP_Data(NSpin, NData, NMC, MCSkip, H, l, A)
 end
 c = GP_Data()
 
