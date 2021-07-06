@@ -29,6 +29,20 @@ end
 function localenergy(x::State, model::GPmodel)
     y = predict(x, model)
     eloc = 0.0im
+    @simd for i in 1:c.NSpin
+        xflip_spin = copy(x.spin)
+        xflip_spin[i] *= -1
+        xflip = State(xflip_spin)
+        y2 = predict(xflip, model)
+        e = -x.spin[i] * x.spin[i%c.NSpin+1] - c.H * exp(y2 - y)
+        eloc += e
+    end
+    eloc
+end
+
+function physicalvals(x::State, model::GPmodel)
+    y = predict(x, model)
+    eloc = 0.0im
     vloc = 0.0im
     @simd for i in 1:c.NSpin
         xflip_spin = copy(x.spin)
@@ -49,7 +63,7 @@ function energy(x_mc::Vector{State}, model::GPmodel)
             x_mc[i] = tryflip(x_mc[i], model, eng)
         end
     end
-    enesvec = Folds.sum(localenergy(x, model) for x in x_mc)
+    enesvec = Folds.sum(physicalvals(x, model) for x in x_mc)
     ene  = enesvec[1]
     vene = enesvec[2]
     real(ene / c.NMC), real(vene / c.NMC)
