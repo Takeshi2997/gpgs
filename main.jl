@@ -31,7 +31,8 @@ function main(filename::String)
     for k in 1:200
         model = imaginarytime(model)
         ene, vene = energy(batch_x, model)
-        entropy = logvene / c.NSpin - 2.0 * k / c.NSpin * log(c.l - ene)
+        lene = ifelse(c.l > ene, c.l - ene, 1e-6)
+        entropy = logvene / c.NSpin - 2.0 * k / c.NSpin * log(lene)
         open("./data/" * filename, "a") do io
             write(io, string(k))
             write(io, "\t")

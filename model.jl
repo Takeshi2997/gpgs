@@ -18,7 +18,7 @@ end
 function GPmodel(data_x::Vector{State}, data_y::Vector{T}) where {T<:Complex}
     KI = Array{T}(undef, c.NData, c.NData)
     makeinverse(KI, data_x)
-    pvec = KI * data_y
+    pvec = KI * exp.(data_y)
     GPmodel(data_x, data_y, pvec, KI)
 end
 
@@ -49,7 +49,7 @@ function predict(x::State, model::GPmodel)
     mu  = kv' * pvec
     var = k0 - kv' * KI * kv
 
-    log(exp(sqrt(var) * randn(typeof(mu)) + mu) - 1.0)
+    log(sqrt(var) * randn(typeof(mu)) + mu)
 end
 
 
