@@ -80,7 +80,7 @@ function imaginarytime(data_x::Vector{State}, data_y::Vector{T}, pvector::Vector
             H_ψ[i] -= c.H * exp(y)
         end
     end
-    data_y[:] = log.(exp.(data_y) - H_ψ * 0.1)
+    data_y[:] = log.(1.6 * exp.(data_y) - H_ψ)
     v = sum(exp.(data_y)) / c.NData
     data_y[:] .-= log(v)
 end
@@ -145,6 +145,8 @@ function main(filename::String)
             write(io, string(i))
             write(io, "\t")
             write(io, string(ene))
+            write(io, "\t")
+            write(io, string(2 * i / (1.6 - ene)))
             write(io, "\n")
         end
     end
