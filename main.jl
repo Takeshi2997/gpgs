@@ -27,21 +27,18 @@ function main(filename::String)
         batch_x[i] = State(x)
     end
 
-    logvene = 0.0
     for k in 1:200
         model = imaginarytime(model)
-        ene, vene = energy(batch_x, model)
-        lene = ifelse(c.l > ene, c.l - ene, 1e-6)
-        entropy = logvene / c.NSpin - 2.0 * k / c.NSpin * log(lene)
+        ene = energy(batch_x, model)
+        β = 2.0 * k / c.NSpin / log(c.l - ene)
         open("./data/" * filename, "a") do io
             write(io, string(k))
             write(io, "\t")
             write(io, string(ene))
             write(io, "\t")
-            write(io, string(entropy))
+            write(io, string(β))
             write(io, "\n")
         end
-        logvene += log(vene)
     end
 end
 
